@@ -36,7 +36,9 @@ Download and Install the Wazuh Agent from the [Wazuh website](https://documentat
 2. Select **A** (Add agent). Enter an Agent name.
 3. Select **E** (Extract key for a specified agent) for the newly created agent.
 4. Copy the entire output key.
-2. Apply Key and Manager IP in Windows Agent GUI.
+5. Apply Key and Manager IP in Windows Agent GUI.
+
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/3.%20wazuh_agent.png'/>
 
 ### Automated Register
 1. In the Wazuh Dashboard, go to **Agents --> Deploy new agent**.
@@ -45,7 +47,13 @@ Download and Install the Wazuh Agent from the [Wazuh website](https://documentat
 4. Run the command in powershell or cmd.
 5. start the Wazuh agent.
 
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/1.%20add_agent.png'/>
+
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/2.%20agent_download.png'/>
+
 Finally, verify the onboarding by refreshing the dashboard and navigating to the Agents section. A new active device will be shown with the appointed name.
+
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/4.%20agent_active.png'/>
 
 ## Step 3: Simulate suspicious login attempt.
 1. Logout from the host machine and attempt to login using incorrect password
@@ -69,8 +77,19 @@ C:\Program Files (x86)\ossec-agent\ossec.conf
 6. Save the file and restart the agent.
 7. Now refresh the Wazuh dashboard.
 
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/5.%20ossec_file.png'/>
+
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/6.%20restart.png'/>
+
 ## Step 4: Generate Test Events
-1. On the host machine 
+1. On the host machine first add a file to the folder.
+2. you will see even generated on the wazuh dashboard
+3. Then delete the file to see another event being generated.
+4. If you inspect the logs you will see that what changes were made has been logged in the event description.
+
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/8.%20File_info.png'/>
+
+<img src='https://github.com/TanunM/wazuh_EDR_project/blob/main/gallery/7.%20added.png'/>
 
 ## Troubleshooting
 * Windows Agent Status is "Never Connected": Firewall blocking port **1514/TCP**.
@@ -85,4 +104,5 @@ This lab provides hands-on experience with fundamental SIEM operations:
 * Practical implementation of FIM to detect and alert on changes to a critical security control.
 * Reinforcing the importance of proper network configuration and firewall rules in a security architecture.
 
-## 
+## Reference
+* [Wazuh EDR](https://www.youtube.com/watch?v=QT81wcuoRFY)
