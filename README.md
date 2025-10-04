@@ -20,59 +20,69 @@ The core objective is to successfully establish the foundational components of a
 
 ## Step 1: Install Wazuh OVA
 1. Download the Wazuh OVa from the [Wazuh site](https://documentation.wazuh.com/current/deployment-options/virtual-machine/virtual-machine.html)
-2. login using the given credi
-1.  **Add the Wazuh GPG Key:**
-    Open a terminal on your Ubuntu VM and execute the command to import the GPG key, which verifies the authenticity of the Wazuh packages.
-    ```bash
-    curl -s [https://packages.wazuh.com/key/GPG-KEY-WAZUH](https://packages.wazuh.com/key/GPG-KEY-WAZUH) | sudo gpg --dearmor -o /usr/share/keyrings/wazuh-archive-keyring.gpg
-    ```
-2.  **Download and Run the Installation Script:**
-    Download the official install script (check documentation for the current version) and run it with the **`-a`** (all components) and **`-i`** (interactive mode) flags.
-    ```bash
-    curl -sO [https://packages.wazuh.com/4.x/wazuh-install.sh](https://packages.wazuh.com/4.x/wazuh-install.sh) && sudo bash ./wazuh-install.sh -a -i
-    ```
-3.  **Record Credentials:**
-    The script will display the **default credentials** (username and password) for the Wazuh Dashboard upon completion. **Copy these credentials** and your Ubuntu VM's IP address.
+2. login using the given credentials
+3. Using the commandline get the IP of the device and from the host machine browser access the GUI.
+4. The link address is https://<wazuh OVA IP>/app/login
+5. Login to the dashboard using the default credentials
+   
+## Step 2: Install Agent in Windows Host
+Download and Install the Wazuh Agent from the [Wazuh website](https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html) You can use one of the 2 methods to link windows agent to the dashboard.
 
----
-
-## Step 2: Access the Wazuh Dashboard and Install Agent (Windows Host)
-
-1.  **Get the Manager's IP Address:**
-    On the Ubuntu VM, check the IP address configured for its network adapter (e.g., using `ip a` or `ifconfig`).
-2.  **Access the Dashboard:**
-    On your Windows Host machine, open a browser and navigate to the Ubuntu VM's IP address using HTTPS:
-    ```
-    https://<ubuntu-vm-ip>
-    ```
-    Accept the browser security warning and log in.
-3.  **Download and Install the Wazuh Agent:**
-    * In the Wazuh Dashboard, go to **Agents** $\rightarrow$ **Deploy new agent**.
-    * Select **Windows** as the Operating System.
-    * Follow the on-screen instructions to **download the MSI installer** for the Wazuh Agent.
-    * Run the MSI installer on the Windows Host using the **default settings**.
-
----
-
-## Step 3: Register the Agent and Verify Connection
-
-This process uses the manual key exchange method to establish a secure, authenticated connection between the agent and manager.
-
-1.  **Generate Agent Key on the Ubuntu Manager:**
-    On the Ubuntu terminal, run the agent management utility:
+### Manual Register
+1. On the WWazuh OVA terminal, run the agent management utility:
     ```bash
     sudo /var/ossec/bin/manage_agents
     ```
-    * Select **A** (Add agent). Enter an Agent name (e.g., **WindowsHost**).
-    * Select **E** (Extract key for a specified agent) for the newly created agent.
-    * **Copy the entire output key** (the long string beginning with `AQ...`).
-2.  **Apply Key and Manager IP in Windows Agent:**
-    * On the Windows Host, open the **Wazuh Agent Manager** GUI.
-    * Go to **Manage** $\rightarrow$ **Configuration**.
-    * In the **Manager** field, enter the Ubuntu VM's IP address.
-    * In the **Agent Key** field, **paste the key** copied in the previous step.
-    * Click **Save** and then **Restart** the agent service.
-3.  **Verify Onboarding:**
-    Return to the Wazuh Dashboard. Navigate to **Agents** and confirm the **WindowsHost** agent is listed with a **Status of Active (Green)**.
+2. Select **A** (Add agent). Enter an Agent name.
+3. Select **E** (Extract key for a specified agent) for the newly created agent.
+4. Copy the entire output key.
+2. Apply Key and Manager IP in Windows Agent GUI.
 
----
+### Automated Register
+1. In the Wazuh Dashboard, go to **Agents --> Deploy new agent**.
+2. Select **Windows** as the Operating System.
+3. Follow the on-screen instructions to **download the installer** for the Wazuh Agent and to add it to the dashboard.
+4. Run the command in powershell or cmd.
+5. start the Wazuh agent.
+
+Finally, verify the onboarding by refreshing the dashboard and navigating to the Agents section. A new active device will be shown with the appointed name.
+
+## Step 3: Simulate suspicious login attempt.
+1. Logout from the host machine and attempt to login using incorrect password
+2. After few attempt login and go to the wazuh dashboard.
+3. You will see new alerts generated. Search for rule id 60204, which is triggered for failed attempt.
+4. This way you can monitor event log.
+
+## Step 4: Configure File Integrity Monitoring
+We will configure the Windows Agent's **Syscheck** module to monitor a custom folder in real-time.
+1. On the Windows Host, create a simple folder in your desired folder like Desktop.
+2. Copy the path of the folder.
+3. Open notepad as administrator.
+4. Navigate to
+```
+C:\Program Files (x86)\ossec-agent\ossec.conf
+```
+5. In the file add the following line.
+```
+<directories realtime="yes">**<file path>**</directories>
+```
+6. Save the file and restart the agent.
+7. Now refresh the Wazuh dashboard.
+
+## Step 4: Generate Test Events
+1. On the host machine 
+
+## Troubleshooting
+* Windows Agent Status is "Never Connected": Firewall blocking port **1514/TCP**.
+* Incorrect Manager IP or Agent Key: Verify Key & IP
+* Agent is Active, but No FIM Alerts: Incorrect "ossec.conf" syntax or agent restart failed or incorrect monitored folder path.
+
+## Key Learning
+This lab provides hands-on experience with fundamental SIEM operations:
+* Establishing a Wazuh Manager to collect and analyze security data from a remote endpoint.
+* Monitor log events for unauthorized login attempt.
+* Understanding the role of the Wazuh Agent as the lightweight component for gathering and forwarding local security events.
+* Practical implementation of FIM to detect and alert on changes to a critical security control.
+* Reinforcing the importance of proper network configuration and firewall rules in a security architecture.
+
+## 
